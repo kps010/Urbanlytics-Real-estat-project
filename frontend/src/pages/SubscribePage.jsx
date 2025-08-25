@@ -14,7 +14,7 @@ const plans = {
 const SubscribePage = () => {
   const { userEmail } = useAuth();
   const navigate = useNavigate();
-  const { name } = useParams(); // ✅ Assume route: /subscribe/:name/:email
+  const { name } = useParams(); //  Assume route: /subscribe/:name/:email
   const normalizedPlan = name?.toLowerCase();
   const [activeMethod, setActiveMethod] = useState(null);
   const [cardDetails, setCardDetails] = useState({
@@ -35,7 +35,7 @@ const SubscribePage = () => {
   const handlePayment = async (e) => {
     e.preventDefault();
 
-    // ✅ Validation
+    // Validation
     if (activeMethod === "card") {
       if (
         !cardDetails.name ||
@@ -57,24 +57,21 @@ const SubscribePage = () => {
     }
 
     try {
-      // ✅ Call Django backend API
-      const res = await axios.post(
-        "http://127.0.0.1:8000/api/subscribe/",
-        {
-          email: userEmail,
-          plan: normalizedPlan,
-          payment_method: activeMethod,
-          amount: amount.toString(),
-        }
-      );
+      //  Call Django backend API
+      const res = await axios.post("http://127.0.0.1:8000/api/subscribe/", {
+        email: userEmail,
+        plan: normalizedPlan,
+        payment_method: activeMethod,
+        amount: amount.toString(),
+      });
 
       if (res.status === 201) {
-        alert(`✅ Subscription successful! Plan: ${name}`);
+        alert(` Subscription successful! Plan: ${name}`);
         navigate("/profile"); // redirect after payment
       }
     } catch (err) {
       console.error(err);
-      alert("❌ Subscription failed! Try again.");
+      alert(" Subscription failed! Try again.");
     }
   };
 

@@ -40,7 +40,7 @@ const ContactUs = () => {
             Schedule a Visit
           </motion.h2> */}
 
-          {/* ✅ Success Message */}
+          {/* Success Message */}
           <AnimatePresence>
             {submitted && (
               <motion.p

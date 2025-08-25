@@ -42,7 +42,7 @@ class Property(models.Model):
         ("4BHK", "4 BHK"),
     ]
 
-    # 🔑 Link to User
+    #  Link to User
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="properties")
 
     location = models.TextField()
@@ -56,7 +56,7 @@ class Property(models.Model):
     phone = models.CharField(max_length=15)
     email = models.EmailField()
 
-    # ✅ Dynamic file paths
+    #  Dynamic file paths
     hall = models.ImageField(upload_to=upload_to_hall)
     kitchen = models.ImageField(upload_to=upload_to_kitchen)
     bathroom = models.ImageField(upload_to=upload_to_bathroom)

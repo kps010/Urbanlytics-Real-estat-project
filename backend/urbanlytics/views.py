@@ -1,5 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.preprocessing import StandardScaler
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
@@ -21,6 +23,8 @@ from sklearn.pipeline import Pipeline
 def price_predictor(request):
     sqft = int(request.data.get('sqft'))
     location = request.data.get('location')
+    bhk = request.data.get('propertyType')
+
     
     df = pd.read_csv(r'.\assets\ahmedabad_cleaned.csv')
 
@@ -39,7 +43,7 @@ def price_predictor(request):
     # --- Global Variables ---
     location_counts = df['location'].value_counts()
     all_locations = set(df['location'].unique())
-    price = predict_price(df,sqft, location,location_counts,all_locations)
+    price = predict_price(df,sqft,location, bhk,location_counts,all_locations)
 
     return Response({"message": "Hello, world!","price":price})
 
@@ -55,7 +59,8 @@ def parse_sqft(val):
 
 def build_pipeline():
     preprocessor = ColumnTransformer(
-        transformers=[('location', OneHotEncoder(handle_unknown='ignore'), ['location'])],
+        transformers=[('location', OneHotEncoder(handle_unknown='ignore'), ['location']),
+                      ('numeric', StandardScaler(), ['bhk', 'total_sqft'])],
         remainder='passthrough'
     )
     return Pipeline([
@@ -70,7 +75,7 @@ def find_best_match(location,location_counts,all_locations):
 
 
 # --- Prediction ---
-def predict_price(df,sqft, location,location_counts,all_locations):
+def predict_price(df,sqft, location,bhk,location_counts,all_locations):
     matched = find_best_match(location,location_counts,all_locations)
     if not matched:
         return f"Location '{location}' not found."
@@ -79,21 +84,23 @@ def predict_price(df,sqft, location,location_counts,all_locations):
     if len(subset) < 10:
         return f"Not enough data for location '{matched.title()}' ({len(subset)} records)."
 
-    X = subset[['total_sqft', 'location']]
+    X = subset[['total_sqft', 'location','bhk']]
     y = subset['price']
 
     pipeline = build_pipeline()
     pipeline.fit(X, y)
 
-    # ✅ Save model to disk
+    # Save model to disk
     model_filename = f"model_{matched.replace(' ', '_')}.pkl"
     joblib.dump(pipeline, model_filename)
 
-    input_data = pd.DataFrame([[sqft, matched]], columns=['total_sqft', 'location'])
-    price = pipeline.predict(input_data)[0]
-    return f"Estimated price for {sqft} sq.ft in '{location.title()}' (matched as '{matched.title()}'): ₹{price:.2f} Lakhs"
 
-@api_view(['POST'])  # ✅ Allow POST
+
+    input_data = pd.DataFrame([[sqft, matched,bhk]], columns=['total_sqft', 'location','bhk'])
+    price = pipeline.predict(input_data)[0]
+    return f"Estimated price for {sqft} sq.ft in '{location.title()}' (matched as '{matched.title()}' for {bhk}bhk): ₹{price:.2f} Lakhs"
+
+@api_view(['POST'])  # Allow POST
 def login_view(request):
     email = request.data.get('email')
     password = request.data.get('pass')
@@ -128,7 +135,7 @@ def register_view(request):
         email=email,
         password=password,  # Hash in real projects
         phone_no=phone,
-        loggedIn=True   # ✅ set loggedIn True on registration
+        loggedIn=True   # set loggedIn True on registration
     )
 
     return Response({"message": "User registered successfully", "user": user.name}, status=status.HTTP_201_CREATED)
@@ -138,9 +145,10 @@ def register_view(request):
 @api_view(['GET'])
 def check_logged_in_user(request):
     user = User.objects.filter(loggedIn=True).first()  # get first logged-in user
-    
+    email = user.email
     if user:
-        return Response({"loggedIn": True, "email": user.email})
+        print("logged in ",email)
+        return Response({"loggedIn": True, "email": email})
     else:
         return Response({"loggedIn": False})
     
@@ -156,7 +164,7 @@ def logout_view(request):
     
 @api_view(['GET'])
 def user_profile(request):
-    email = request.GET.get("email")  # ✅ query param
+    email = request.GET.get("email")  #  query param
     if not email:
         return Response({"success": False, "error": "Email is required"})
 
@@ -212,8 +220,8 @@ def update_profile(request):
 # @api_view(["POST"])
 # @parser_classes([MultiPartParser, FormParser])
 # def upload_property(request):
-#     # ✅ Find user using foreign key (email from frontend login/session)
-#     user_email = request.data.get("user_email")   # <-- frontend should send this
+#     #  Find user using foreign key (email from frontend login/session)
+#     user_email = request.data.get("user_email")   
 #     try:
 #         user = User.objects.get(email=user_email)
 #     except User.DoesNotExist:
@@ -236,7 +244,7 @@ from decimal import Decimal
 @api_view(['POST'])
 def create_subscription(request):
     try:
-        email = request.data.get("email")   # 👈 now using email
+        email = request.data.get("email")  
         plan = request.data.get("plan")
         payment_method = request.data.get("payment_method")
 
@@ -247,7 +255,7 @@ def create_subscription(request):
         expiry_date = date.today() + timedelta(days=30)
 
         # Ensure user exists
-        user = User.objects.get(email=email)   # 👈 lookup by email
+        user = User.objects.get(email=email)   #  lookup by email
 
         subscription = Subscription.objects.create(
             user=user,

@@ -9,7 +9,7 @@ from urbanlytics.models import User
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
 def upload_property(request):
-    # ✅ Find user using foreign key (email from frontend login/session)
+    #  Find user using foreign key (email from frontend login/session)
     user_email = request.data.get("user_email")   # <-- frontend should send this
     try:
         user = User.objects.get(email=user_email)
@@ -36,8 +36,7 @@ def list_properties(request):
 def get_property(request):
     print("Request data:", request.data)
     email = request.data.get("email") if request.method == "POST" else request.query_params.get("email")
-    # email = request.data.get("email")  # expecting ?email=user@example.com
-
+    # email = request.data.get("email") 
     if not email:
         return Response({"success": False, "error": "Email is required"}, status=400)
 
@@ -58,7 +57,6 @@ def get_property(request):
                 "phone": prop.phone,
                 "email": prop.email,
                 "created_at": prop.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                # ✅ Full image URLs
                 "hall": request.build_absolute_uri(prop.hall.url) if prop.hall else None,
                 "kitchen": request.build_absolute_uri(prop.kitchen.url) if prop.kitchen else None,
                 "bathroom": request.build_absolute_uri(prop.bathroom.url) if prop.bathroom else None,
@@ -77,9 +75,14 @@ def get_property(request):
 @api_view(["POST"])
 def search_property(request):
     location = request.data.get("location", "").strip().lower()
+    # email = request.data.get("email")
+    # user = User.objects.get(email=email)
+    user = User.objects.filter(loggedIn=True).first()  # get first logged-in user
+    email = user.email
+    print("search ",email)
 
     if location:
-        properties = Property.objects.filter(location__icontains=location)
+        properties = Property.objects.filter(location__icontains=location).exclude(user=user)
     else:
         properties = Property.objects.all()
 
@@ -94,5 +97,17 @@ def get_property_details(request, property_id):
         prop = Property.objects.get(id=property_id)
         serializer = PropertySerializer(prop)
         return Response(serializer.data)
+    except Property.DoesNotExist:
+        return Response({"error": "Property not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['POST'])
+def delete_property(request):
+    pk = request.data.get('id')
+    try:
+        property_obj = Property.objects.get(pk=pk)
+        property_obj.delete()
+        return Response({"message": "Property deleted successfully"}, status=status.HTTP_200_OK)
     except Property.DoesNotExist:
         return Response({"error": "Property not found"}, status=status.HTTP_404_NOT_FOUND)

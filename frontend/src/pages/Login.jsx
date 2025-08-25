@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // ✅ Eye icons
+import { FaEye, FaEyeSlash } from "react-icons/fa"; //  Eye icons
 import HomeButton from "./HomeButton";
 import { useAuth } from "../hooks/AuthContext";
 import axios from "axios";
@@ -27,7 +27,7 @@ const Login = () => {
       setResult(res.data.message);
 
       if (res.data.user) {
-        setLoggedIn(true); // ✅ set context to true on success
+        setLoggedIn(true); //  set context to true on success
         navigate("/");
       }
     } catch (error) {
@@ -109,7 +109,7 @@ const Login = () => {
             </motion.button>
           </form>
 
-          {/* ✅ Signup Link */}
+          {/*  Signup Link */}
           <p className="mt-6 text-white/70 text-sm">
             Don’t have an account?{" "}
             <Link

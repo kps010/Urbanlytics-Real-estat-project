@@ -18,8 +18,9 @@ const Footer1 = () => {
           transition={{ delay: 0.2 }}
         >
           <h3 className="text-lg font-semibold mb-2">Address</h3>
-          <p>742 Evergreen Terrace</p>
-          <p>Brooklyn, NY 11201</p>
+          <p>Ahmedabad</p>
+          {/* <p>742 Evergreen Terrace</p> */}
+          {/* <p>Brooklyn, NY 11201</p> */}
         </motion.div>
 
         {/* Logo and Socials */}

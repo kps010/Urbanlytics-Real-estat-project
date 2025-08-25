@@ -23,6 +23,7 @@ urlpatterns = [
     path('get-property/',views.get_property,name='get-property'),
     path('search-property/',views.search_property,name='search-property'),
     path('property_details/<int:property_id>/',views.get_property_details,name='search-property'),
+    path('delete-property/',views.delete_property,name='search-property'),
 
 ]
 

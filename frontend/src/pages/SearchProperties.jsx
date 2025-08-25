@@ -3,19 +3,23 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { useAuth } from "../hooks/AuthContext";
 import Navbar1 from "./Navbar1";
 
 const SearchProperties = () => {
+  const { userEmail} = useAuth();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [properties, setProperties] = useState([]);
 
   const fetchProperties = async (query = "") => {
     try {
+      // alert(userEmail)
       const res = await axios.post(
         "http://127.0.0.1:8000/api/properties/search-property/",
         {
           location: query,
+          email: userEmail,
         }
       );
       setProperties(res.data);

@@ -56,7 +56,7 @@ const Signup = () => {
       
       setResult(res.data.message)
       if (res.data.user) {
-        setLoggedIn(true); // ✅ set context to true on success
+        setLoggedIn(true); //  set context to true on success
         navigate("/");
       }
     } catch (error) {

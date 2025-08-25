@@ -5,22 +5,23 @@ import { motion } from "framer-motion";
 import { useAuth } from "../hooks/AuthContext";
 import axios from "axios";
 import HomeButton from "./HomeButton";
+import { FaTrash } from "react-icons/fa";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const { setLoggedIn, userEmail, setUserEmail } = useAuth();
   const [userData, setUserData] = useState(null);
   const [properties, setProperties] = useState([]);
-  const [isEditing, setIsEditing] = useState(false); // ✅ toggle edit mode
+  const [isEditing, setIsEditing] = useState(false); // toggle edit mode
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone_no: "",
   });
-  const [activePlan, setActivePlan] = useState(null); // ❌ Missing
+  const [activePlan, setActivePlan] = useState(null); //  Missing
 
   useEffect(() => {
-    // ✅ Fetch user details
+    // Fetch user details
     const fetchData = async () => {
       try {
         const res = await axios.get("http://127.0.0.1:8000/api/user-profile/", {
@@ -76,7 +77,7 @@ const ProfilePage = () => {
         ...formData,
       });
       if (res.data.success) {
-        setUserData(formData); // ✅ update local state
+        setUserData(formData); //  update local state
         setUserData(formData);
         setIsEditing(false);
       } else {
@@ -99,6 +100,24 @@ const ProfilePage = () => {
       }
     } catch (err) {
       console.error("Logout failed", err);
+    }
+  };
+
+  const handleRemove = async (id) => {
+    try {
+      const res = await axios.post(
+        "http://127.0.0.1:8000/api/properties/delete-property/",
+        { id }
+      );
+      if (res.data.message) {
+        console.log(res.data.message);
+        setProperties((prev) => prev.filter((prop) => prop.id !== id));
+        // navigate("/profile");
+      } else {
+        console.log(res.data.error);
+      }
+    } catch (err) {
+      console.error("Delete error", err);
     }
   };
 
@@ -215,7 +234,17 @@ const ProfilePage = () => {
                   )}
                   <h4 className="font-semibold text-lg">{prop.description}</h4>
                   <p className="text-sm text-gray-600">{prop.location}</p>
-                  <p className="text-[#B97A41] font-bold mt-2">₹{prop.price}</p>
+                  <p className="text-[#B97A41] font-bold">₹{prop.price}</p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevents triggering navigate
+                      handleRemove(prop.id); // your remove handler
+                    }}
+                    className="flex items-center gap-2 text-red-400 hover:text-red-600 text-sm font-medium transition-colors"
+                  >
+                    <FaTrash size={15} />
+                    Remove
+                  </button>
                 </motion.button>
               ))}
             </button>

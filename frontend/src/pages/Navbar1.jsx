@@ -1,8 +1,13 @@
 // src/components/Navbar.jsx
 import { useState, useEffect } from "react";
-import { Button, Link as ScrollLink } from "react-scroll"; // ✅ Add this
+import { Button, Link as ScrollLink } from "react-scroll";
 import { FaUserCircle } from "react-icons/fa";
-import { Link as PageLink, useNavigate, useLocation } from "react-router-dom";
+import {
+  Link as PageLink,
+  useNavigate,
+  useLocation,
+  Link,
+} from "react-router-dom";
 import { useAuth } from "../hooks/AuthContext";
 import axios from "axios";
 
@@ -11,59 +16,70 @@ axios.defaults.withCredentials = true;
 const Navbar1 = () => {
   const { loggedIn } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const element = document.getElementById(hash.replace("#", ""));
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [hash]);
 
   return (
     <nav className="fixed left-0 right-0 z-50 bg-[#0C3C3B] text-white py-4 rounded-xl max-w-7xl mx-auto mt-4 px-6 shadow-md">
       <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2 text-2xl font-bold">
+        <Link to="/" className="flex items-center gap-2 text-2xl font-bold">
           Urbanlytics
-        </a>
+        </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6 font-medium">
-          <a
-            href="/#predict"
+          <Link
+            to="/#predict"
             className="hover:text-[#B97A41] cursor-pointer"
             // onClick={() => {
             //   handleScroll("predict");
             // }}
           >
             Price Predictor
-          </a>
-          <a href="/search-property" className="hover:text-[#B97A41] cursor-pointer">
+          </Link>
+          <Link
+            to="/search-property"
+            className="hover:text-[#B97A41] cursor-pointer"
+          >
             Search Property
-          </a>
-          <a
-            href="/upload-property"
+          </Link>
+          <Link
+            to="/upload-property"
             className="hover:text-[#B97A41] cursor-pointer"
             // onClick={() => {
             //   navigate("/upload-property");
             // }}
           >
             Upload Property
-          </a>
-          <a
-            href="/#contact"
+          </Link>
+          <Link
+            to="/#contact"
             className="hover:text-[#B97A41] cursor-pointer"
-            onClick={() => {
-              handleScroll("contact");
-            }}
+            // onClick={() => {
+            //   handleScroll("contact");
+            // }}
           >
             Contact Us
-          </a>
-          <a
-            href="/#about"
+          </Link>
+          <Link
+            to="/#about"
             className="hover:text-[#B97A41] cursor-pointer"
-            onClick={() => {
-              handleScroll("about");
-            }}
+            // onClick={() => {
+            //   handleScroll("about");
+            // }}
           >
             About Us
-          </a>
+          </Link>
         </div>
 
         {/* Login Button */}
@@ -71,7 +87,7 @@ const Navbar1 = () => {
           {loggedIn ? (
             <Button
               className="flex items-center gap-2  font-medium"
-              onClick={() => navigate("/profile")} // 👈 navigate to profile page
+              onClick={() => navigate("/profile")} //  navigate to profile page
             >
               <FaUserCircle size={30} />
             </Button>

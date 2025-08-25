@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
         if (res.data.loggedIn) {
           setLoggedIn(true);
           setUserEmail(res.data.email);
+          console.log(res.data.email)
         } else {
           setLoggedIn(false);
           setUserEmail(null);

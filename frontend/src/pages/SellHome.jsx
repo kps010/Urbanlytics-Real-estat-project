@@ -6,7 +6,7 @@ import Navbar1 from "./Navbar1";
 import { useAuth } from "../hooks/AuthContext";
 
 function SellHome() {
-  const {userEmail} = useAuth();
+  const { userEmail } = useAuth();
   const [formData, setFormData] = useState({
     location: "",
     sqft: "",
@@ -40,7 +40,7 @@ function SellHome() {
     data.append("propertyType", formData.propertyType);
     data.append("name", formData.name);
     data.append("phone", formData.phone);
-    data.append("email", formData.email); // 👈 backend may expect `user_email`
+    data.append("email", formData.email); //  backend may expect `user_email`
     data.append("user_email", userEmail);
 
     // Append photos (each with a matching backend field name)
@@ -59,19 +59,16 @@ function SellHome() {
       const res = await axios.post(
         "http://127.0.0.1:8000/api/properties/upload-property/",
         data,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
       if (res.data.message) {
         alert("Property submitted successfully!");
       }
     } catch (error) {
       console.error("Upload failed:", error.response?.data || error.message);
-      alert("Failed to submit property.");
+      alert("Failed to submit property.", error.message);
     }
   };
-
 
   const inputClass =
     "w-full bg-transparent border border-gray-500 text-white placeholder-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#C1783A]";

@@ -9,11 +9,19 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
 
+  const components = [
+    { id: "home", ele: <Home /> },
+    { id: "predict", ele: <PricePredictor/> },
+    { id: "contact", ele: <ContactUs/> },
+    { id: "about", ele: <Footer1/> },
+  ];
+
+
   return (
     <>
       <Navbar1 />
       <div className="relative z-0">
-        <Element id="home">
+        {/* <Element id="home">
           <Home />
         </Element>
         <Element id="predict">
@@ -24,7 +32,12 @@ const HomePage = () => {
         </Element>
         <Element id="about">
           <Footer1 />
-        </Element>
+        </Element> */}
+        {components.map((comp) => (
+          <Element key={comp.id} id={comp.id}>
+            {comp.ele}
+          </Element>
+        ))}
       </div>
     </>
   );
